@@ -1,76 +1,33 @@
-from crud.books import add_book
-from crud.category import add_category, show_all_categories
-from crud.user import login, validate, logout_all
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
 
+from core.db_settings import SessionLocal, engine, Base
 
-def auth_menu():
-    print("""
-    1. Register
-    2. Login
-    3. Validate
-    3. Exit
-    """)
-    option = input("Enter your option: ")
-    if option == "1":
-        return auth_menu()
-    elif option == "2":
-        if login():
-            print("Welcome")
-            return main()
-        else:
-            print("Invalid email or password")
-            return auth_menu()
-    elif option == "3":
-        if validate():
-            print("Welcome")
-            return main()
+from core import tables
+from crud import user as user_crud
 
-    elif option == "4":
-        print("Goodbye")
-        return None
-    else:
-        print("Invalid option")
-    return auth_menu()
+tables.Base.metadata.create_all(bind=engine)
 
+app = FastAPI(title="Qarzlar Boshqaruvi")
 
-def main():
-    print("""
-    1. Add category
-    2. Delete category
-    3. Show all category
-    4. Show all books
-    5. Add book
-    6. Delete book
-    7. Search book | name, author, note, category
-    8. Exit
-    """)
-    option = input("Enter your option: ")
-    if option == "1":
-        add_category()
-    elif option == "2":
-        pass
-    elif option == "3":
-        show_all_categories()
-    elif option == "4":
-        pass
-    elif option == "5":
-        add_book()
-    elif option == "6":
-        pass
-    elif option == "7":
-        pass
-    elif option == "8":
-        print("Goodbye")
-        return None
-    else:
-        print("Invalid option")
-    return main()
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
+@app.get("/")
+def read_root():
+    return {"message": "Tizim ishlamoqda"}
 
-if __name__ == '__main__':
-    # execute_query(users)
-    # execute_query(category)
-    # execute_query(books)
-    # execute_query(codes)
-    logout_all()
-    auth_menu()
+@app.post("/add-debt")
+def add_new_debt(ism: str, nomer: str, summa: int, turi: str, db: Session = Depends(get_db)):
+    try:
+        return user_crud.create_debt_manager(db, ism, nomer, summa, turi)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Xatolik yuz berdi: {str(e)}")
+
+@app.get("/debts")
+def list_debts(db: Session = Depends(get_db)):
+    return user_crud.get_all_debts_manager(db)

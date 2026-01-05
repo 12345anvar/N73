@@ -1,45 +1,22 @@
-category = """
-           CREATE TABLE IF NOT EXISTS category
-           (
-               id      BIGSERIAL PRIMARY KEY,
-               user_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
-               title   VARCHAR(255) NOT NULL UNIQUE
-           ) \
-           """
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+from core.db_settings import Base
 
-books = """
-        CREATE TABLE IF NOT EXISTS books
-        (
-            id          BIGSERIAL PRIMARY KEY,
-            user_id     BIGINT REFERENCES users (id) ON DELETE CASCADE,
-            category_id BIGINT       REFERENCES category (id) ON DELETE SET NULL,
-            name        VARCHAR(255) NOT NULL UNIQUE,
-            author      VARCHAR(255),
-            note        TEXT,
-            status      VARCHAR(32)  NOT NULL,
-            created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) \
-        """
+class User(Base):
+    __tablename__ = "users"
 
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    phone = Column(String, unique=True, index=True)
 
-users = """
-        CREATE TABLE IF NOT EXISTS users
-        (
-            id         BIGSERIAL PRIMARY KEY,
-            email      VARCHAR(255) NOT NULL UNIQUE,
-            password   VARCHAR(255),
-            is_login   BOOLEAN DEFAULT FALSE,
-            is_active  BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) \
-        """
+    debts = relationship("Debt", back_populates="owner")
 
-codes = """
-        CREATE TABLE IF NOT EXISTS codes
-        (
-            id         BIGSERIAL PRIMARY KEY,
-            email      VARCHAR(255) NOT NULL UNIQUE,
-            code       VARCHAR(6),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) \
-        """
+class Debt(Base):
+    __tablename__ = "debts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    amount = Column(Integer)
+    type = Column(String)
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    owner = relationship("User", back_populates="debts")
