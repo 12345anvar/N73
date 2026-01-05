@@ -35,11 +35,11 @@ def search_book(cursor, conn):
     search_term = input("Enter search term (name, author or note): ").strip()
 
     query = """
-    SELECT * FROM books 
-    WHERE name ILIKE %s 
-       OR author ILIKE %s 
+    SELECT * FROM books
+    WHERE name ILIKE %s
+       OR author ILIKE %s
        OR note ILIKE %s
-    LIMIT 20 
+    LIMIT 20
     """
 
     search_pattern = f"%{search_term}%"
