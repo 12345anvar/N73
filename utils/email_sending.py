@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 def send_debt_notification(receiver_email: str, subject: str, body: str):
     sender_email = os.getenv("EMAIL_USER")
     password = os.getenv("EMAIL_PASSWORD")

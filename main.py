@@ -1,8 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-
 from core.db_settings import SessionLocal, engine, Base
-
 from core import tables
 from crud import user as user_crud
 
